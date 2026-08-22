@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<syscalls xmlns="urn:linux-syscalls-draft:1.0">
+
+  <syscall name="exit" noreturn="true">
+    <number arch="x86_64" value="60" />
+    <number arch="aarch64" value="93" />
+    <arg name="error_code" type="s32" direction="in" />
+  </syscall>
+
+  <module name="mm">
+    <bitset name="Prot" backing="u32">
+      <flag name="read" bit="0" />
+      <flag name="write" bit="1" />
+      <flag name="exec" bit="2" />
+      <flag name="sem" bit="3" />
+    </bitset>
+
+    <bitset name="Map" backing="u32">
+      <enum name="Type" bits="0-3">
+        <value name="shared" number="1" />
+        <value name="private" number="2" />
+        <value name="shared_validate" number="3" />
+        <value name="droppable" number="8" />
+      </enum>
+      <flag name="fixed" bit="4" />
+      <flag name="anonymous" bit="5" />
+      <!-- TODO: Continue with the remaining flags. -->
+    </bitset>
+
+    <syscall name="mmap">
+      <number arch="x86_64" value="9" />
+      <number arch="aarch64" value="222" />
+      <!-- NOTE: Notice the definition of `mmap` in the man pages:
+
+           void *mmap(size_t length;
+                      void addr[length], size_t length, int prot, int flags,
+                      int fd, off_t offset);
+
+           The first time we see `length` is forward declaring it. This way, the length
+           of the `addr` array is `length`. We can enforce a similar thing as well. -->
+      <arg name="addr" type="*void" nullable="true" />
+      <arg name="length" type="size_t" />
+      <arg name="prot" type="Prot" />
+      <arg name="flags" type="Map" />
+      <arg name="fd" type="fd" />
+      <arg name="offset" type="off_t" />
+
+      <return type="*void" error_convention="negative_errno_as_pointer" />
+    </syscall>
+  </module>
+
+</syscalls>
