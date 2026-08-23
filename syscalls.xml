@@ -79,9 +79,9 @@
       <flag name="hugetlb"         bit="18" />
       <flag name="sync"            bit="19" />
       <flag name="fixed_noreplace" bit="20" />
-      <reserved bits="21-25">
-      <flag name="uninitalized"    bit="26" />
-      <reserved bits="27-31">
+      <reserved bits="21-25" />
+      <flag name="uninitialized"   bit="26" />
+      <reserved bits="27-31" />
     </bitset>
 
     <syscall name="mmap">
