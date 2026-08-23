@@ -28,6 +28,17 @@
     <alias name="char"    of="s8" />
   </types>
 
+  <module name="proc">
+
+    <syscall name="getpid">
+      <number arch="x86_64"  value="39"/>
+      <number arch="aarch64" value="172"/>
+      <number arch="riscv64" value="172"/>
+      <return type="pid_t" error_convention="always_succeeds"/>
+    </syscall>
+
+  </module>
+
   <syscall name="exit" noreturn="true">
     <number arch="x86_64" value="60" />
     <number arch="aarch64" value="93" />
