@@ -46,23 +46,41 @@
   </syscall>
 
   <module name="mm">
-    <bitset name="Prot" backing="u32">
-      <flag name="read" bit="0" />
-      <flag name="write" bit="1" />
-      <flag name="exec" bit="2" />
-      <flag name="sem" bit="3" />
+    <bitset name="prot" backing="u32">
+      <flag name="read"      bit="0" />
+      <flag name="write"     bit="1" />
+      <flag name="exec"      bit="2" />
+      <flag name="sem"       bit="3" />
+      <reserved              bits="4-23" />
+      <flag name="growsdown" bit="24" />
+      <flag name="growsup"   bit="25" />
     </bitset>
 
-    <bitset name="Map" backing="u32">
+    <bitset name="map" backing="u32">
       <enum name="Type" bits="0-3">
-        <value name="shared" number="1" />
-        <value name="private" number="2" />
-        <value name="shared_validate" number="3" />
-        <value name="droppable" number="8" />
+        <value name="shared" value="1" />
+        <value name="private" value="2" />
+        <value name="shared_validate" value="3" />
+        <value name="droppable" value="8" />
       </enum>
-      <flag name="fixed" bit="4" />
-      <flag name="anonymous" bit="5" />
-      <!-- TODO: Continue with the remaining flags. -->
+      <flag name="fixed"           bit="4" />
+      <flag name="anonymous"       bit="5" />
+      <flag name="32bit"           bit="6"  arch="x86_64" />
+      <flag name="above4g"         bit="7"  arch="x86_64" />
+      <flag name="growsdown"       bit="8"  arch="x86_64 aarch64" />
+      <flag name="denywrite"       bit="11" arch="x86_64 aarch64" />
+      <flag name="executable"      bit="12" arch="x86_64 aarch64" />
+      <flag name="locked"          bit="13" arch="x86_64 aarch64" />
+      <flag name="noreserve"       bit="14" arch="x86_64 aarch64" />
+      <flag name="populate"        bit="15" />
+      <flag name="nonblock"        bit="16" />
+      <flag name="stack"           bit="17" />
+      <flag name="hugetlb"         bit="18" />
+      <flag name="sync"            bit="19" />
+      <flag name="fixed_noreplace" bit="20" />
+      <reserved bits="21-25">
+      <flag name="uninitalized"    bit="26" />
+      <reserved bits="27-31">
     </bitset>
 
     <syscall name="mmap">
@@ -78,8 +96,8 @@
            of the `addr` array is `length`. We can enforce a similar thing as well. -->
       <arg name="addr" type="*void" nullable="true" />
       <arg name="length" type="size_t" />
-      <arg name="prot" type="Prot" />
-      <arg name="flags" type="Map" />
+      <arg name="prot" type="prot" />
+      <arg name="flags" type="map" />
       <arg name="fd" type="fd" />
       <arg name="offset" type="off_t" />
 
