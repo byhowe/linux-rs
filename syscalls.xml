@@ -42,6 +42,7 @@
   <syscall name="exit" noreturn="true">
     <number arch="x86_64" value="60" />
     <number arch="aarch64" value="93" />
+    <number arch="riscv64" value="93" />
     <arg name="error_code" type="s32" direction="in" />
   </syscall>
 
@@ -86,22 +87,14 @@
     <syscall name="mmap">
       <number arch="x86_64" value="9" />
       <number arch="aarch64" value="222" />
-      <!-- NOTE: Notice the definition of `mmap` in the man pages:
-
-           void *mmap(size_t length;
-                      void addr[length], size_t length, int prot, int flags,
-                      int fd, off_t offset);
-
-           The first time we see `length` is forward declaring it. This way, the length
-           of the `addr` array is `length`. We can enforce a similar thing as well. -->
-      <arg name="addr" type="*void" nullable="true" />
+      <number arch="riscv64" value="222" />
+      <arg name="addr" type="void[length]" nullable="true" />
       <arg name="length" type="size_t" />
       <arg name="prot" type="prot" />
       <arg name="flags" type="map" />
       <arg name="fd" type="fd" />
       <arg name="offset" type="off_t" />
-
-      <return type="*void" error_convention="negative_errno_as_pointer" />
+      <return type="void[length]" error_convention="negative_errno_as_pointer" />
     </syscall>
   </module>
 
