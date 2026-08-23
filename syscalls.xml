@@ -2,6 +2,32 @@
 
 <syscalls xmlns="urn:linux-syscalls-draft:1.0">
 
+  <types>
+    <int name="s8"  bits="8"  signed="true" />
+    <int name="u8"  bits="8"  signed="false" />
+    <int name="s16" bits="16" signed="true" />
+    <int name="u16" bits="16" signed="false" />
+    <int name="s32" bits="32" signed="true" />
+    <int name="u32" bits="32" signed="false" />
+    <int name="s64" bits="64" signed="true" />
+    <int name="u64" bits="64" signed="false" />
+
+    <alias name="int"     of="s32" />
+    <alias name="uint"    of="u32" />
+    <alias name="long"    of="s64" />
+    <alias name="ulong"   of="u64" />
+    <alias name="size_t"  of="u64" />
+    <alias name="ssize_t" of="s64" />
+    <alias name="pid_t"   of="s32" />
+    <alias name="uid_t"   of="u32" />
+    <alias name="gid_t"   of="u32" />
+    <alias name="off_t"   of="s64" />
+    <alias name="mode_t"  of="u32" />
+    <alias name="fd"      of="s32" />
+    <alias name="cstr"    of="char[]" />
+    <alias name="char"    of="s8" />
+  </types>
+
   <syscall name="exit" noreturn="true">
     <number arch="x86_64" value="60" />
     <number arch="aarch64" value="93" />
