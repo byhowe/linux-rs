@@ -212,3 +212,45 @@ mapBitset =
     , FieldEnum 26 6 hugePageSizeEnum
     , FieldFlag "uninitialized" 26 allArchs
     ]
+
+mmapSyscall :: Syscall
+mmapSyscall =
+  Syscall
+    { name = "mmap"
+    , numbers =
+        Map.fromList
+          [ (X86_64, 9)
+          , (AArch64, 222)
+          , (RISCV64, 222)
+          ]
+    , args =
+        [ Arg "addr" (TypePtr Mut (TypePrim Opaque))
+        , Arg "len" sizeType
+        , Arg "prot" (TypeBitset protBitset)
+        , Arg "flags" (TypeBitset mapBitset)
+        , Arg "fd" fdType
+        , Arg "offset" offsetType
+        ]
+    , returns = TypeArray Mut (ParamLen "len") (TypePrim U8)
+    , errorConvention = NegativeErrnoPointer
+    }
+
+exitSyscall :: Syscall
+exitSyscall =
+  Syscall
+    { name = "exit"
+    , numbers =
+        Map.fromList
+          [ (X86_64, 60)
+          , (AArch64, 93)
+          , (RISCV64, 93)
+          ]
+    , args =
+        [ Arg "error_code" (TypePrim I32)
+        ]
+    , returns = TypeVoid
+    , errorConvention = NeverReturns
+    }
+
+syscalls :: [Syscall]
+syscalls = [mmapSyscall, exitSyscall]
