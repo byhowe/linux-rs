@@ -1,9 +1,24 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 module Linux
   ( Arch (..)
+  , PrimType (..)
+  , Mutability (..)
+  , ArrayLen (..)
+  , Type (..)
+  , EnumValue (..)
+  , EnumDef (..)
+  , BitsetField (..)
+  , Bitset (..)
+  , ErrorConvention (..)
+  , Arg (..)
+  , Syscall (..)
+  , syscalls
   ) where
 
+import Data.Map (Map)
+import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 import Data.Word (Word64)
@@ -33,6 +48,10 @@ data PrimType
   | Opaque
   | Bool
   deriving (Show, Eq)
+
+fdType = TypeAlias "fd" (TypePrim I32)
+sizeType = TypeAlias "size" (TypePrim USize)
+offsetType = TypeAlias "offset" (TypePrim I64)
 
 data Mutability
   = Const
@@ -101,6 +120,28 @@ data Type
       { name :: String
       , target :: Type
       }
+  deriving (Show, Eq)
+
+data ErrorConvention
+  = NegativeErrno
+  | NegativeErrnoPointer
+  | AlwaysSucceeds
+  | NeverReturns
+  deriving (Show, Eq)
+
+data Arg = Arg
+  { name :: String
+  , type' :: Type
+  }
+  deriving (Show, Eq)
+
+data Syscall = Syscall
+  { name :: String
+  , numbers :: Map Arch Int
+  , args :: [Arg]
+  , returns :: Type
+  , errorConvention :: ErrorConvention
+  }
   deriving (Show, Eq)
 
 protBitset :: Bitset
