@@ -22,7 +22,8 @@ library
     exposed-modules:  Linux
     -- other-modules:
     -- other-extensions:
-    build-depends:    base ^>=4.21.2.0
+    build-depends:    base ^>=4.21.2.0,
+                      containers
     hs-source-dirs:   syscalls/src
     default-language: GHC2024
 
