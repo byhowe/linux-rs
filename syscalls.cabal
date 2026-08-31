@@ -1,0 +1,39 @@
+cabal-version:      3.0
+name:               syscalls
+version:            0.1.0.0
+-- synopsis:
+-- description:
+homepage:           https://github.com/byhowe/linux-rs
+license:            MIT
+license-file:       LICENSE
+author:             Ömer Faruk Çavuş
+maintainer:         37745048+byhowe@users.noreply.github.com
+-- copyright:
+category:           System
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:  Linux
+    -- other-modules:
+    -- other-extensions:
+    build-depends:    base ^>=4.21.2.0
+    hs-source-dirs:   syscalls/src
+    default-language: GHC2024
+
+executable generator-rust
+    import:           warnings
+    main-is:          Rust.hs
+    -- other-modules:
+    -- other-extensions:
+    build-depends:
+        base ^>=4.21.2.0,
+        syscalls
+
+    hs-source-dirs:   syscalls/rust
+    default-language: GHC2024
