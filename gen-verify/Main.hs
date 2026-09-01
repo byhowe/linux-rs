@@ -54,7 +54,7 @@ collectBitsets = concatMap extract
 genVerifier :: Linux.Arch -> [Linux.Syscall] -> String
 genVerifier arch syscalls =
   let
-    types = concatMap (\(Linux.Syscall _ _ args ret _) -> ret : map Linux.type' args) syscalls
+    types = concatMap (\(Linux.Syscall _ _ _ args ret _) -> ret : map Linux.type' args) syscalls
     bitsets = types & collectBitsets & nubOrd & concatMap (bitsetMacros arch)
     syscallMacros =
       syscalls

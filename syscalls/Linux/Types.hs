@@ -130,6 +130,7 @@ data Arg = Arg
 
 data Syscall = Syscall
   { name :: String
+  , subsystem :: String
   , numbers :: Map Arch Int
   , args :: [Arg]
   , returns :: Type

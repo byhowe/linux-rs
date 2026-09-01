@@ -13,6 +13,7 @@ mmapSyscall :: Syscall
 mmapSyscall =
   Syscall
     { name = "mmap"
+    , subsystem = "mm"
     , numbers =
         Map.fromList
           [ (X86_64, 9)
@@ -35,6 +36,7 @@ exitSyscall :: Syscall
 exitSyscall =
   Syscall
     { name = "exit"
+    , subsystem = "process"
     , numbers =
         Map.fromList
           [ (X86_64, 60)
