@@ -44,7 +44,7 @@ exitSyscall =
     , args =
         [ Arg "error_code" (TypePrim I32)
         ]
-    , returns = TypeVoid
+    , returns = TypePrim Opaque
     , errorConvention = NeverReturns
     }
 

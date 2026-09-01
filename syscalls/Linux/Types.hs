@@ -92,8 +92,7 @@ data Bitset = Bitset
   deriving (Eq, Show)
 
 data Type
-  = TypeVoid
-  | TypePrim PrimType
+  = TypePrim PrimType
   | TypePtr
       { mutability :: Mutability
       , pointee :: Type
