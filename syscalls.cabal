@@ -48,6 +48,7 @@ executable gen-verify
     main-is:          Main.hs
     build-depends:
         base ^>=4.21.2.0,
+        containers,
         syscalls
     hs-source-dirs:   gen-verify
     default-language: GHC2024
