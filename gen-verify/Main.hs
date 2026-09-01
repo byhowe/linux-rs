@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Main (main) where
 
 import Data.Char (toUpper)
@@ -18,12 +20,11 @@ enumMacroName enumName variantName = case enumName of
   _ -> map toUpper enumName ++ "_" ++ map toUpper variantName
 
 bitsetMacroNames :: Linux.Bitset -> [String]
-bitsetMacroNames (Linux.Bitset bitsetName _ fields) = concatMap extractMacroNames fields
- where
-  extractMacroNames :: Linux.BitsetField -> [String]
-  extractMacroNames (Linux.FieldFlag flagName _ _) = [flagMacroName bitsetName flagName]
-  extractMacroNames (Linux.FieldEnum _ _ (Linux.EnumDef enumName enumValues)) =
-    [enumMacroName enumName valName | Linux.EnumValue valName _ _ <- enumValues]
+bitsetMacroNames (Linux.Bitset bitsetName _ fields) =
+  fields >>= \case
+    Linux.FieldFlag fName _ _ -> [flagMacroName bitsetName fName]
+    Linux.FieldEnum _ _ (Linux.EnumDef eName vals) ->
+      [enumMacroName eName valName | Linux.EnumValue valName _ _ <- vals]
 
 main :: IO ()
 main = putStr . unlines $ bitsetMacroNames Linux.Definitions.mapBitset
