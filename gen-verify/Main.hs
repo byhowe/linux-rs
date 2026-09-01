@@ -4,10 +4,15 @@ module Main (main) where
 
 import Linux qualified
 
+import Control.Arrow ((&&&))
+import Data.Bifunctor (bimap, second)
 import Data.Char (toUpper)
 import Data.Containers.ListUtils (nubOrd)
 import Data.Function ((&))
+import Data.Map qualified as Map
+import Data.Maybe (mapMaybe)
 import Data.Set qualified as Set
+import GHC.Records (getField)
 import Text.Printf (printf)
 
 flagMacroName :: String -> String -> String
@@ -48,10 +53,14 @@ genVerifier arch syscalls =
   let
     types = concatMap (\(Linux.Syscall _ _ args ret _) -> ret : map Linux.type' args) syscalls
     bitsets = types & collectBitsets & nubOrd & concatMap (bitsetMacros arch)
+    syscallMacros =
+      syscalls
+        & mapMaybe ((sequenceA . second (Map.lookup arch)) . (getField @"name" &&& getField @"numbers"))
+        & map (bimap (("__NR_" ++) . map toUpper) show)
    in
     unlines
       [ printf "_Static_assert(%s == %s, \"%s mismatch on %s\");" macroName value macroName (show arch)
-      | (macroName, value) <- bitsets
+      | (macroName, value) <- bitsets ++ syscallMacros
       ]
 
 main :: IO ()
