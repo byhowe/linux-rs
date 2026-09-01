@@ -17,12 +17,22 @@ enumMacroName "access_mode" "read_write" = "O_RDWR"
 enumMacroName "access_mode" variant = printf "O_%s" $ map toUpper variant
 enumMacroName enum variant = printf "%s_%s" (map toUpper enum) (map toUpper variant)
 
-bitsetMacroNames :: Linux.Bitset -> [String]
+bitsetMacroNames :: Linux.Bitset -> [(String, String)]
 bitsetMacroNames (Linux.Bitset bitsetName _ fields) =
   fields >>= \case
-    Linux.FieldFlag fName _ _ -> [flagMacroName bitsetName fName]
-    Linux.FieldEnum _ _ (Linux.EnumDef eName vals) ->
-      [enumMacroName eName valName | Linux.EnumValue valName _ _ <- vals]
+    Linux.FieldFlag fName bit _ ->
+      [(flagMacroName bitsetName fName, printf "(1u << %d)" bit)]
+    Linux.FieldEnum bit _ (Linux.EnumDef eName vals) ->
+      [ (enumMacroName eName valName, printf "(%du << %d)" val bit)
+      | Linux.EnumValue valName val _ <- vals
+      ]
+
+genVerifier :: Linux.Arch -> [Linux.Syscall] -> String
+genVerifier arch syscalls =
+  unlines
+    [ printf "_Static_assert(%s == %s, \"%s mismatch on %s\");" macroName value macroName (show arch)
+    | (macroName, value) <- bitsetMacroNames Linux.Definitions.mapBitset
+    ]
 
 main :: IO ()
-main = putStr . unlines $ bitsetMacroNames Linux.Definitions.mapBitset
+main = putStr $ genVerifier Linux.X86_64 Linux.syscalls
