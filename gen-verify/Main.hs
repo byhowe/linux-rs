@@ -19,6 +19,8 @@ flagMacroName :: String -> String -> String
 flagMacroName bitset flag = printf "%s_%s" (map toUpper bitset) (map toUpper flag)
 
 enumMacroName :: String -> String -> String
+enumMacroName "map_type" variant = printf "MAP_%s" $ map toUpper variant
+enumMacroName "huge_page_size" variant = printf "MAP_HUGE_%s" $ map toUpper variant
 enumMacroName "access_mode" "read_only" = "O_RDONLY"
 enumMacroName "access_mode" "write_only" = "O_WRONLY"
 enumMacroName "access_mode" "read_write" = "O_RDWR"
