@@ -26,8 +26,9 @@ library
         Linux.Syscalls
     -- other-modules:
     -- other-extensions:
-    build-depends:    base ^>=4.21.2.0,
-                      containers
+    build-depends:
+        base ^>=4.21.2.0,
+        containers
     hs-source-dirs:   syscalls
     default-language: GHC2024
 
@@ -39,6 +40,14 @@ executable gen-rust
     build-depends:
         base ^>=4.21.2.0,
         syscalls
-
     hs-source-dirs:   gen-rust
+    default-language: GHC2024
+
+executable gen-verify
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.21.2.0,
+        syscalls
+    hs-source-dirs:   gen-verify
     default-language: GHC2024
