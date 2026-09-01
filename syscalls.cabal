@@ -28,17 +28,17 @@ library
     -- other-extensions:
     build-depends:    base ^>=4.21.2.0,
                       containers
-    hs-source-dirs:   syscalls/src
+    hs-source-dirs:   syscalls
     default-language: GHC2024
 
-executable generator-rust
+executable gen-rust
     import:           warnings
-    main-is:          Rust.hs
+    main-is:          Main.hs
     -- other-modules:
     -- other-extensions:
     build-depends:
         base ^>=4.21.2.0,
         syscalls
 
-    hs-source-dirs:   syscalls/rust
+    hs-source-dirs:   gen-rust
     default-language: GHC2024
