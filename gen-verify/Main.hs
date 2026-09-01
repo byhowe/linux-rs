@@ -5,6 +5,7 @@ module Main (main) where
 import Linux qualified
 
 import Control.Arrow ((&&&))
+import Control.Monad (forM_)
 import Data.Bifunctor (bimap, second)
 import Data.Char (toUpper)
 import Data.Containers.ListUtils (nubOrd)
@@ -58,12 +59,31 @@ genVerifier arch syscalls =
     syscallMacros =
       syscalls
         & mapMaybe ((sequenceA . second (Map.lookup arch)) . (getField @"name" &&& getField @"numbers"))
-        & map (bimap (("__NR_" ++) . map toUpper) show)
-   in
-    unlines
+        & map (bimap ("__NR_" ++) show)
+    asserts =
       [ printf "_Static_assert(%s == %s, \"%s mismatch on %s\");" macroName value macroName (show arch)
       | (macroName, value) <- bitsets ++ syscallMacros
       ]
+    mainFunc =
+      [ "int main(void) {"
+      , "    return 0;"
+      , "}"
+      ]
+    headers =
+      [ "#include <stdint.h>"
+      , "#include <asm/unistd.h>"
+      , "#include <linux/mman.h>"
+      ]
+   in
+    unlines headers
+      ++ "\n"
+      ++ unlines asserts
+      ++ "\n"
+      ++ unlines mainFunc
 
 main :: IO ()
-main = putStr $ genVerifier Linux.X86_64 Linux.syscalls
+main = forM_ Linux.allArchs $ \arch -> do
+  let
+    code = genVerifier arch Linux.syscalls
+    path = printf "tests/verify-%s.c" $ show arch
+  writeFile path code
