@@ -45,31 +45,31 @@ data PrimType
   | USize
   | Opaque
   | Bool
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data Mutability
   = Const
   | Mut
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data ArrayLen
   = NullTerminated
   | ParamLen String
   | FixedLen Int
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data EnumValue = EnumValue
   { name :: String
   , value :: Word64
   , archs :: Set Arch
   }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data EnumDef = EnumDef
   { name :: String
   , values :: [EnumValue]
   }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data BitsetField
   = FieldFlag
@@ -82,14 +82,14 @@ data BitsetField
       , width :: Int
       , enumDef :: EnumDef
       }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data Bitset = Bitset
   { name :: String
   , backing :: PrimType
   , fields :: [BitsetField]
   }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data Type
   = TypePrim PrimType
@@ -113,20 +113,20 @@ data Type
       { name :: String
       , target :: Type
       }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data ErrorConvention
   = NegativeErrno
   | NegativeErrnoPointer
   | AlwaysSucceeds
   | NeverReturns
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data Arg = Arg
   { name :: String
   , type' :: Type
   }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data Syscall = Syscall
   { name :: String
@@ -135,4 +135,4 @@ data Syscall = Syscall
   , returns :: Type
   , errorConvention :: ErrorConvention
   }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
