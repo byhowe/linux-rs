@@ -2,10 +2,11 @@
 
 module Main (main) where
 
-import Data.Char (toUpper)
-import Data.Set qualified as Set
 import Linux qualified
-import Linux.Definitions qualified
+
+import Data.Char (toUpper)
+import Data.List (nub)
+import Data.Set qualified as Set
 import Text.Printf (printf)
 
 flagMacroName :: String -> String -> String
@@ -31,12 +32,27 @@ bitsetMacroNames arch (Linux.Bitset bitsetName _ fields) =
       , arch `Set.member` archs
       ]
 
+collectBitsets :: [Linux.Type] -> [Linux.Bitset]
+collectBitsets = concatMap extract
+ where
+  extract :: Linux.Type -> [Linux.Bitset]
+  extract (Linux.TypePtr _ pointee) = extract pointee
+  extract (Linux.TypeArray _ _ elemType) = extract elemType
+  extract (Linux.TypeAlias _ target) = extract target
+  extract (Linux.TypeBitset bitset) = [bitset]
+  extract _ = []
+
 genVerifier :: Linux.Arch -> [Linux.Syscall] -> String
 genVerifier arch syscalls =
-  unlines
-    [ printf "_Static_assert(%s == %s, \"%s mismatch on %s\");" macroName value macroName (show arch)
-    | (macroName, value) <- bitsetMacroNames arch Linux.Definitions.mapBitset
-    ]
+  let
+    types = concatMap (\(Linux.Syscall _ _ args ret _) -> ret : map Linux.type' args) syscalls
+    bitsets = nub . collectBitsets $ types
+   in
+    unlines
+      [ printf "_Static_assert(%s == %s, \"%s mismatch on %s\");" macroName value macroName (show arch)
+      | bitset <- bitsets
+      , (macroName, value) <- bitsetMacroNames arch bitset
+      ]
 
 main :: IO ()
 main = putStr $ genVerifier Linux.X86_64 Linux.syscalls
