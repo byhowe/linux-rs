@@ -23,13 +23,13 @@ import Data.Set (Set)
 import Data.Set qualified as Set
 import Data.Word (Word64)
 
-data Arch = X86_64 | AArch64 | RISCV64
+data Arch = X86_64 | AArch64 | RiscV64
   deriving (Eq, Ord, Enum, Bounded)
 
 instance Show Arch where
   show X86_64 = "x86_64"
   show AArch64 = "aarch64"
-  show RISCV64 = "riscv64"
+  show RiscV64 = "riscv64"
 
 allArchs :: Set Arch
 allArchs = Set.fromList [minBound .. maxBound]
@@ -221,7 +221,7 @@ mmapSyscall =
         Map.fromList
           [ (X86_64, 9)
           , (AArch64, 222)
-          , (RISCV64, 222)
+          , (RiscV64, 222)
           ]
     , args =
         [ Arg "addr" (TypePtr Mut (TypePrim Opaque))
@@ -243,7 +243,7 @@ exitSyscall =
         Map.fromList
           [ (X86_64, 60)
           , (AArch64, 93)
-          , (RISCV64, 93)
+          , (RiscV64, 93)
           ]
     , args =
         [ Arg "error_code" (TypePrim I32)
