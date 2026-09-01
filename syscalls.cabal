@@ -19,7 +19,11 @@ common warnings
 
 library
     import:           warnings
-    exposed-modules:  Linux
+    exposed-modules:
+        Linux,
+        Linux.Types,
+        Linux.Definitions,
+        Linux.Syscalls
     -- other-modules:
     -- other-extensions:
     build-depends:    base ^>=4.21.2.0,

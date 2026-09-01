@@ -1,8 +1,8 @@
 module Main (main) where
 
-import qualified Linux (someFunc)
+import Linux qualified
 
 main :: IO ()
 main = do
   putStrLn "Hello, Haskell!"
-  Linux.someFunc
+  print Linux.mmapSyscall
