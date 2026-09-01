@@ -5,19 +5,17 @@ module Main (main) where
 import Data.Char (toUpper)
 import Linux qualified
 import Linux.Definitions qualified
+import Text.Printf (printf)
 
 flagMacroName :: String -> String -> String
-flagMacroName bitsetName flagName = case bitsetName of
-  _ -> map toUpper bitsetName ++ "_" ++ map toUpper flagName
+flagMacroName bitset flag = printf "%s_%s" (map toUpper bitset) (map toUpper flag)
 
 enumMacroName :: String -> String -> String
-enumMacroName enumName variantName = case enumName of
-  "access_mode" -> case variantName of
-    "read_only" -> "O_RDONLY"
-    "write_only" -> "O_WRONLY"
-    "read_write" -> "O_RDWR"
-    _ -> "O_" ++ map toUpper variantName
-  _ -> map toUpper enumName ++ "_" ++ map toUpper variantName
+enumMacroName "access_mode" "read_only" = "O_RDONLY"
+enumMacroName "access_mode" "write_only" = "O_WRONLY"
+enumMacroName "access_mode" "read_write" = "O_RDWR"
+enumMacroName "access_mode" variant = printf "O_%s" $ map toUpper variant
+enumMacroName enum variant = printf "%s_%s" (map toUpper enum) (map toUpper variant)
 
 bitsetMacroNames :: Linux.Bitset -> [String]
 bitsetMacroNames (Linux.Bitset bitsetName _ fields) =
