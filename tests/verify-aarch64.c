@@ -42,6 +42,7 @@ _Static_assert(MAP_HUGE_2GB == (31u << 26), "MAP_HUGE_2GB mismatch on aarch64");
 _Static_assert(MAP_HUGE_16GB == (34u << 26), "MAP_HUGE_16GB mismatch on aarch64");
 _Static_assert(MAP_UNINITIALIZED == (1u << 26), "MAP_UNINITIALIZED mismatch on aarch64");
 _Static_assert(__NR_mmap == 222, "__NR_mmap mismatch on aarch64");
+_Static_assert(__NR_munmap == 215, "__NR_munmap mismatch on aarch64");
 _Static_assert(__NR_exit == 93, "__NR_exit mismatch on aarch64");
 
 int main(void) {

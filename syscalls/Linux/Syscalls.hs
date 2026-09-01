@@ -30,6 +30,26 @@ mmapSyscall =
         ]
     , returns = TypeArray Mut (ParamLen "len") (TypePrim U8)
     , errorConvention = NegativeErrnoPointer
+    -- TODO: Maybe include the error convention inside the return type
+    }
+
+munmapSyscall :: Syscall
+munmapSyscall =
+  Syscall
+    { name = "munmap"
+    , subsystem = "mm"
+    , numbers =
+        Map.fromList
+          [ (X86_64, 11)
+          , (AArch64, 215)
+          , (RiscV64, 215)
+          ]
+    , args =
+        [ Arg "addr" (TypePtr Mut (TypePrim Opaque))
+        , Arg "len" sizeType
+        ]
+    , returns = TypePrim Opaque
+    , errorConvention = NegativeErrno
     }
 
 exitSyscall :: Syscall
@@ -51,4 +71,4 @@ exitSyscall =
     }
 
 syscalls :: [Syscall]
-syscalls = [mmapSyscall, exitSyscall]
+syscalls = [mmapSyscall, munmapSyscall, exitSyscall]
