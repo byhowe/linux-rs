@@ -59,6 +59,8 @@ executable gen-syscalls
     build-depends:
         base ^>=4.21.2.0,
         containers,
+        directory,
+        filepath,
         syscalls
     hs-source-dirs:   gen-syscalls
     default-language: GHC2024
