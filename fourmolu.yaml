@@ -1,4 +1,4 @@
-indentation: 2
+indentation: 4
 column-limit: 100
 import-export-style: leading
 import-grouping: preserve

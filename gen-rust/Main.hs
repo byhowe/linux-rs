@@ -4,5 +4,5 @@ import Linux qualified
 
 main :: IO ()
 main = do
-  putStrLn "Hello, Haskell!"
-  print Linux.mmapSyscall
+    putStrLn "Hello, Haskell!"
+    print Linux.mmapSyscall
