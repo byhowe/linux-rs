@@ -15,10 +15,10 @@ data Options = Options
 defaultOptions :: Options
 defaultOptions = Options{linux = "upstream/linux"}
 
-parseOptions :: Options -> [String] -> Either String Options
-parseOptions opts [] = Right opts
+parseOptions :: Options -> [String] -> Options
+parseOptions opts [] = opts
 parseOptions opts ("--linux" : val : rest) = parseOptions (opts{linux = val}) rest
-parseOptions _ (flag : _) = Left flag
+parseOptions _ (flag : _) = error $ "unknown flag: " ++ flag
 
 validateOptions :: Options -> IO Options
 validateOptions opts =
@@ -42,6 +42,7 @@ parseTblLine line = case words line of
     [num, abi, name, entry] -> TblEntry (read num) abi name entry Nothing False
     [num, abi, name, entry, compat] -> TblEntry (read num) abi name entry (Just compat) False
     [num, abi, name, entry, compat, "noreturn"] -> TblEntry (read num) abi name entry (Just compat) True
+    [_num, _abi, _name, _entry, _compat, noreturn] -> error $ "invalid string in noreturn column: " ++ noreturn
     _ -> error $ "failed to parse syscall tbl line: " ++ line
 
 parseTbl :: String -> [TblEntry]
@@ -53,7 +54,7 @@ parseTbl = map parseTblLine . filter isDataLine . lines
 
 main :: IO ()
 main = do
-    opts <- getArgs >>= either (\flag -> die $ "error: unknown flag: " ++ flag) validateOptions . parseOptions defaultOptions
+    opts <- validateOptions . parseOptions defaultOptions =<< getArgs
 
     x86Table <- readFile $ linux opts </> "arch/x86/entry/syscalls/syscall_64.tbl"
     genericTable <- readFile $ linux opts </> "scripts/syscall.tbl"
