@@ -1,11 +1,20 @@
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Main (main) where
+
+import Linux qualified
 
 import Control.Monad (unless)
 import Data.Foldable (traverse_)
+import Data.Map (Map)
+import Data.Map qualified as Map
+import Data.Maybe (mapMaybe)
 import System.Directory (doesDirectoryExist)
 import System.Environment (getArgs)
 import System.Exit (die)
 import System.FilePath ((</>))
+import Text.Printf (printf)
 
 data Options = Options
     { linux :: FilePath
@@ -52,12 +61,49 @@ parseTbl = map parseTblLine . filter isDataLine . lines
     isDataLine ('#' : _) = False
     isDataLine _ = True
 
+data Syscall = Syscall
+    { name :: String
+    , numbers :: Map Linux.Arch Int
+    }
+    deriving (Show)
+
 main :: IO ()
 main = do
     opts <- validateOptions . parseOptions defaultOptions =<< getArgs
 
-    x86Table <- readFile $ linux opts </> "arch/x86/entry/syscalls/syscall_64.tbl"
-    genericTable <- readFile $ linux opts </> "scripts/syscall.tbl"
+    x86Tbl <- parseTbl <$> readFile (opts.linux </> x86TblPath)
+    genericTbl <- parseTbl <$> readFile (opts.linux </> genericTblPath)
 
-    traverse_ print $ parseTbl x86Table
-    traverse_ print $ parseTbl genericTable
+    let
+        x86Pairs = mkPairs [(Linux.X86_64, x86_64Abis)] x86Tbl
+        genericPairs =
+            mkPairs
+                [ (Linux.AArch64, aarch64Abis)
+                , (Linux.RiscV64, riscv64Abis)
+                ]
+                genericTbl
+
+        mergedMap = Map.fromListWithKey (Map.unionWithKey . onCollision) (x86Pairs ++ genericPairs)
+        syscalls = [Syscall{name = sysName, numbers = archMap} | (sysName, archMap) <- Map.toList mergedMap]
+
+    traverse_ print syscalls
+  where
+    x86TblPath = "arch/x86/entry/syscalls/syscall_64.tbl"
+    genericTblPath = "scripts/syscall.tbl"
+
+    x86_64Abis = ["common", "64"]
+    aarch64Abis = ["common", "64"]
+    riscv64Abis = ["common", "64", "riscv"]
+
+    mkPairs :: [(Linux.Arch, [String])] -> [TblEntry] -> [(String, Map.Map Linux.Arch Int)]
+    mkPairs configs = mapMaybe processEntry
+      where
+        processEntry e =
+            let matchingArchs = [arch | (arch, abis) <- configs, e.abi `elem` abis]
+             in if null matchingArchs
+                    then Nothing
+                    else Just (e.name, Map.fromList [(arch, e.number) | arch <- matchingArchs])
+
+    onCollision sysName arch num1 num2 =
+        error $
+            printf "error: collision on syscall %s on architecture %s: %d != %d" sysName (show arch) num1 num2
