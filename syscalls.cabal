@@ -23,7 +23,8 @@ library
         Linux,
         Linux.Types,
         Linux.Definitions,
-        Linux.Syscalls
+        Linux.Syscalls,
+        Linux.Syscalls.Draft
     -- other-modules:
     -- other-extensions:
     build-depends:
