@@ -1,4 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE MultilineStrings #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Main (main) where
@@ -6,7 +7,9 @@ module Main (main) where
 import Linux qualified
 
 import Control.Monad (unless)
+import Data.Char (toUpper)
 import Data.Foldable (traverse_)
+import Data.List (intercalate)
 import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Maybe (mapMaybe)
@@ -67,6 +70,49 @@ data Syscall = Syscall
     }
     deriving (Show)
 
+renderArch :: Linux.Arch -> String
+renderArch Linux.X86_64 = "X86_64"
+renderArch Linux.AArch64 = "AArch64"
+renderArch Linux.RiscV64 = "RiscV64"
+
+renderPair :: (Linux.Arch, Int) -> String
+renderPair (arch, num) = "(" <> renderArch arch <> ", " <> show num <> ")"
+
+renderNumbers :: Map Linux.Arch Int -> String
+renderNumbers numbers = "[" <> intercalate ", " (renderPair <$> Map.toList numbers) <> "]"
+
+toCamelCase :: String -> String
+toCamelCase [] = []
+toCamelCase ('_' : cs) = case toCamelCase cs of
+    [] -> []
+    (x : xs) -> toUpper x : xs
+toCamelCase (c : cs) = c : toCamelCase cs
+
+renderSyscall :: Syscall -> String
+renderSyscall sys =
+    unlines
+        [ toCamelCase sys.name <> "Syscall :: Syscall"
+        , toCamelCase sys.name <> "Syscall ="
+        , "    Syscall"
+        , "        { name = \"" <> sys.name <> "\""
+        , "        , subsystem = \"unknown\""
+        , "        , numbers = Map.fromList " <> renderNumbers sys.numbers
+        , "        , args = []"
+        , "        , returns = TypePrim Opaque"
+        , "        , errorConvention = NeverReturns"
+        , "        }"
+        ]
+
+renderHeader :: String
+renderHeader =
+    unlines
+        [ "module Linux.Syscalls.Draft where"
+        , ""
+        , "import Linux.Types"
+        , ""
+        , "import Data.Map qualified as Map"
+        ]
+
 main :: IO ()
 main = do
     opts <- validateOptions . parseOptions defaultOptions =<< getArgs
@@ -84,9 +130,14 @@ main = do
                 genericTbl
 
         mergedMap = Map.fromListWithKey (Map.unionWithKey . onCollision) (x86Pairs ++ genericPairs)
-        syscalls = [Syscall{name = sysName, numbers = archMap} | (sysName, archMap) <- Map.toList mergedMap]
+        syscalls =
+            [ Syscall{name = sysName, numbers = archMap}
+            | (sysName, archMap) <- Map.toList mergedMap
+            , sysName /= "_sysctl"
+            ]
 
-    traverse_ print syscalls
+    putStrLn renderHeader
+    traverse_ (putStrLn . renderSyscall) syscalls
   where
     x86TblPath = "arch/x86/entry/syscalls/syscall_64.tbl"
     genericTblPath = "scripts/syscall.tbl"
